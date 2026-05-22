@@ -7,20 +7,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Force Install Missing Xbox C++ Tools
-        run: |
-          Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList 'modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Workload.Universal --add Microsoft.VisualStudio.ComponentGroup.UWP.VC --passive --norestart' -Wait -NoNewWindow
-
       - name: Download Runtime Libraries and Assets
         run: |
           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           .\download_libs.ps1
           .\download_assets.ps1
 
-      - name: Run Main Build Script inside UWP Shell
+      - name: Build with manual SDK path
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64 uwp
+          set INCLUDE=C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um;C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared
+          set LIB=C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\ucrt\x64
           powershell -ExecutionPolicy Bypass -File .\build.ps1
 
       - name: Upload Finished Appx Bundle
