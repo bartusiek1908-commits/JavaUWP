@@ -7,27 +7,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Force Install Missing Xbox C++ Tools
+        run: |
+          Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList 'modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Enterprise" --add Microsoft.VisualStudio.Workload.Universal --add Microsoft.VisualStudio.ComponentGroup.UWP.VC --passive --norestart' -Wait -NoNewWindow
+
       - name: Download Runtime Libraries and Assets
         run: |
           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           .\download_libs.ps1
           .\download_assets.ps1
 
-      - name: Setup UWP C++ Compiler Environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-          uwp: true
-
-      - name: Run Main Build Script
+      - name: Run Main Build Script inside UWP Shell
+        shell: cmd
         run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-          .\build.ps1
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64 uwp
+          powershell -ExecutionPolicy Bypass -File .\build.ps1
 
       - name: Upload Finished Appx Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: Xbox-Offline-Installer
+          name: Xbox-Installer
           path: |
             **/*.appx
             **/*.msix
