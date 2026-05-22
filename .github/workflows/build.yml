@@ -7,16 +7,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup MSBuild and Windows SDK Tools
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Run PowerShell Build Script
-        run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-          .\build_downloader.ps1
+      - name: Restore NuGet Packages
+        run: nuget restore MC.Xbox.sln
+
+      - name: Build Solution for Xbox (Release x64)
+        run: msbuild MC.Xbox.sln /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=false
 
       - name: Upload Finished Appx Bundle
         uses: actions/upload-artifact@v4
         with:
           name: Xbox-Installer
-          path: ./**/*.appx
+          path: |
+            **/*.appx
+            **/*.msix
