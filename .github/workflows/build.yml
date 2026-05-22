@@ -7,30 +7,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Configure Developer Command Prompt Environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
       - name: Download Runtime Libraries and Assets
         run: |
           Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
           .\download_libs.ps1
           .\download_assets.ps1
 
-      - name: Run Main Build Script
-        run: |
-          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-          .\build.ps1
-
-      - name: Upload Finished Appx Bundle
-        uses: actions/upload-artifact@v4
+      - name: Run Build with Injected Paths
+        uses: bcomones/run-vcpkg-action@v1
         with:
-          name: Xbox-Installer
-          path: |
-            **/*.appx
-            **/*.msix
-            
+          run: |
+            powershell -Command "Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; .\build.ps1"
