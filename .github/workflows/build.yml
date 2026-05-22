@@ -1,0 +1,20 @@
+name: Build Xbox Appx
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run PowerShell Build Script
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+          .\build_downloader.ps1
+
+      - name: Upload Finished Appx Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Xbox-Installer
+          path: ./*.appx
+          
