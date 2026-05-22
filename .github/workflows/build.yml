@@ -2,10 +2,13 @@ name: Build Xbox Appx
 on: [push, workflow_dispatch]
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup MSBuild and Windows SDK Tools
+        uses: microsoft/setup-msbuild@v2
 
       - name: Run PowerShell Build Script
         run: |
@@ -16,5 +19,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Xbox-Installer
-          path: ./*.appx
-          
+          path: ./**/*.appx
