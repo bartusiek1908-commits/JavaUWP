@@ -10,11 +10,16 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Restore NuGet Packages
-        run: nuget restore MC.Xbox.sln
+      - name: Download Runtime Libraries and Assets
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+          .\download_libs.ps1
+          .\download_assets.ps1
 
-      - name: Build Solution for Xbox (Release x64)
-        run: msbuild MC.Xbox.sln /p:Configuration=Release /p:Platform=x64 /p:AppxPackageSigningEnabled=false
+      - name: Run Main PowerShell Build Script
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+          .\build.ps1
 
       - name: Upload Finished Appx Bundle
         uses: actions/upload-artifact@v4
@@ -23,3 +28,4 @@ jobs:
           path: |
             **/*.appx
             **/*.msix
+            
